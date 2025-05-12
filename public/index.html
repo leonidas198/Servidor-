@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formulario de Contacto</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --color-bg: #f4f6f8;
+      --color-form: #ffffff;
+      --color-text: #333333;
+      --color-primary: #007BFF;
+      --color-border: #cccccc;
+      --color-success: green;
+      --color-error: red;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #121212;
+        --color-form: #1e1e1e;
+        --color-text: #f1f1f1;
+        --color-primary: #4d9fff;
+        --color-border: #444444;
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    form {
+      background-color: var(--color-form);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group i {
+      position: absolute;
+      top: 50%;
+      left: 0.75rem;
+      transform: translateY(-50%);
+      color: var(--color-border);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background-color: transparent;
+      color: var(--color-text);
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: darken(var(--color-primary), 10%);
+    }
+
+    .success {
+      color: var(--color-success);
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .error {
+      color: var(--color-error);
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <form id="contactForm">
+    <h2><i class="fa-solid fa-envelope"></i> Contactanos</h2>
+
+    <label for="name">Nombre</label>
+    <div class="input-group">
+      <i class="fa-solid fa-user"></i>
+      <input type="text" name="name" id="name" required />
+    </div>
+
+    <label for="email">Email</label>
+    <div class="input-group">
+      <i class="fa-solid fa-envelope"></i>
+      <input type="email" name="email" id="email" required />
+    </div>
+
+    <label for="message">Mensaje</label>
+    <div class="input-group">
+      <i class="fa-solid fa-comment"></i>
+      <textarea name="message" id="message" rows="5" required></textarea>
+    </div>
+
+    <label for="provider">Enviar usando</label>
+    <div class="input-group">
+      <i class="fa-solid fa-paper-plane"></i>
+      <select name="provider" id="provider" required>
+        <option value="gmail">Gmail</option>
+        <!-- <option value="outlook">Outlook</option> -->
+      </select>
+    </div>
+
+    <button type="submit"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+
+    <div id="responseMessage"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById("contactForm");
+    const responseMessage = document.getElementById("responseMessage");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const res = await fetch("/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        const text = await res.text();
+
+        if (res.ok) {
+          responseMessage.textContent = text;
+          responseMessage.className = "success";
+          form.reset();
+        } else {
+          responseMessage.textContent = text;
+          responseMessage.className = "error";
+        }
+      } catch (err) {
+        responseMessage.textContent = "Error de red al enviar el mensaje.";
+        responseMessage.className = "error";
+      }
+    });
+  </script>
+</body>
+</html>
